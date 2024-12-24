@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор изображения</title>
+</head>
+<body>
+    <h1>Выберите изображение для отрисовки трасс</h1>
+
+    <!-- Измененная форма с обработчиком onsubmit -->
+    <form id="traceForm" onsubmit="processImage(event)">
+        <br><br>
+        <!-- Поле для ввода ID задачи с проверкой на целое число -->
+        <label for="task_id">Введите ID задачи (целое число):</label>
+        <input type="text" name="task_id" id="task_id" pattern="\d+" required title="Пожалуйста, введите целое число">
+        <br><br>
+
+        <button type="submit">Process Image</button>
+    </form>
+    <form action="/" method="get" class="mt-2">
+        <input type="submit" value="Главная" class="form-control btn btn-success">
+    </form>
+
+    <script>
+    async function processImage(event) {
+        event.preventDefault();  // Предотвращаем стандартное поведение формы
+
+        const taskId = document.getElementById('task_id').value;
+
+        // Отправляем POST-запрос на /trace с task_id
+        const response = await fetch('/trace', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                task_id: taskId
+            })
+        });
+
+        const contentType = response.headers.get("content-type");
+
+        if (response.ok) {
+            if (contentType && contentType.includes("application/json")) {
+                const result = await response.json();
+                alert(result.status);  // Выводим сообщение о статусе обработки
+            } else {
+                alert("Непредвиденный тип ответа");
+            }
+        } else {
+            alert('Ошибка: ' + response.statusText);  // Обработка ошибок
+        }
+    }
+    </script>
+</body>
+</html>

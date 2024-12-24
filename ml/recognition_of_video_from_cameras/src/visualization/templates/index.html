@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link href="https://assets.website-files.com/5f6bc60e665f54545a1e52a5/610d3e1407cf0329b8b8ade4_favicon-32x32.png" rel="shortcut icon" type="image/x-icon">
+    <link rel="stylesheet" href="static/styles.css">
+    <title>Traffic counter</title>
+    <style>
+        body {
+            background-color: white; /* Белый фон страницы */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Центрируем по горизонтали */
+            justify-content: center; /* Центрируем по вертикали */
+            height: 100vh; /* Высота на весь экран */
+            font-size: 1em; /* Размер текста */
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Центрируем элементы формы */
+        }
+
+        input, button {
+            font-size: 1em; /* Увеличиваем размер шрифта для полей ввода и кнопки */
+            padding: 10px; /* Добавляем отступы для удобства */
+            margin: 10px 0; /* Отступы между элементами */
+        }
+
+        /* Стили для контейнера select */
+        .select-container {
+            position: relative;
+            width: 100%; /* Ширина контейнера */
+            margin-bottom: 20px; /* Отступ снизу перед кнопкой "Использовать" */
+            text-align: center; /* Центрируем контейнер */
+        }
+
+        /* Стили для поля ввода фильтра */
+        .filter-input {
+            width: 100%; /* Ширина поля ввода фильтра */
+            padding: 8px; /* Отступы внутри поля */
+            margin-bottom: 10px; /* Отступ снизу */
+            background-color: #f0f0f0; /* Серый фон */
+            border: 1px solid #ccc; /* Обводка */
+            text-align: center; /* Центрируем текст внутри поля */
+        }
+
+        /* Стили для списка выбора */
+        .selectpicker {
+            max-height: 150px; /* Максимальная высота */
+            overflow-y: auto; /* Вертикальная прокрутка */
+            display: block; /* Отображение списка */
+            position: absolute; /* Позиционирование */
+            z-index: 10; /* Установка уровня отображения */
+            width: 100%; /* Ширина списка */
+            border: 1px solid #ccc; /* Обводка */
+            background-color: white; /* Белый фон списка */
+        }
+    </style>
+</head>
+<body>
+<label for="status">{{ status }}</label>
+<p style="text-align:center">Программное обеспечение предназначено&nbsp;для подсчета интенсивности и определения состава
+    трафика по видеоизображению.</p>
+
+<form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="files" multiple required>
+    <button type="submit">Загрузить</button>
+</form>
+<progress id="progressBar" value="0" max="100" style="display: none;"></progress>
+<div id="status"></div>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="select-container">
+        <input type="text" id="filter" class="filter-input" placeholder="Фильтровать..." oninput="filterOptions()">
+        <select name="comp_select" class="selectpicker form-control" id="fileSelect">
+            {% for file in files %}
+                <option>{{ file }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <input type="submit" value="Использовать" class="form-control btn btn-success">
+</form>
+
+<form action="/tasks" enctype="multipart/form-data" method="post">
+    <input type="submit" value="Задачи" class="form-control btn btn-success " name="tasks">
+</form>
+
+<form id="runForm" enctype="multipart/form-data" onsubmit="runProcessing(event)">
+    <input type="submit" value="Запуск расчетов" class="form-control btn btn-success" id="runButton">
+</form>
+
+<!-- <form action="/select_trace" enctype="multipart/form-data" method="post">
+    <input type="submit" value="Создание трасс ТС" class="form-control btn btn-success " name="select_trace">
+</form> -->
+
+<script>
+function filterOptions() {
+    const filter = document.getElementById('filter').value.toLowerCase();
+    const select = document.getElementById('fileSelect');
+    const options = select.options;
+
+    for (let i = 0; i < options.length; i++) {
+        const option = options[i];
+        const text = option.text.toLowerCase();
+
+        if (text.includes(filter)) {
+            option.style.display = ''; // Показываем элемент
+        } else {
+            option.style.display = 'none'; // Скрываем элемент
+        }
+    }
+};
+async function runProcessing(event) {
+    event.preventDefault();  // Предотвращаем отправку формы
+
+    const response = await fetch('/run', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+
+    // Проверяем тип контента в заголовках ответа
+    const contentType = response.headers.get("content-type");
+
+    if (response.ok) {
+        // Если это HTML, перенаправляем на video_feed.html
+        if (contentType && contentType.includes("text/html")) {
+            // Перенаправление на страницу video_feed.html
+            window.location.href = "/video_feed"; // Укажите правильный путь, если он отличается
+        }
+        // Если это JSON, обрабатываем как JSON
+        else if (contentType && contentType.includes("application/json")) {
+            const result = await response.json(); // Получаем JSON
+            alert(result.status);  // Сообщение об обработке в фоновом режиме
+        }
+    } else {
+        alert('Ошибка: ' + response.statusText);  // Обработка ошибок
+    }
+}
+    const form = document.getElementById('uploadForm');
+    const progressBar = document.getElementById('progressBar');
+    const statusDiv = document.getElementById('status');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Отменяем стандартное поведение формы
+
+        const formData = new FormData(form);
+        progressBar.style.display = 'block'; // Показываем прогресс-бар
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', form.action, true);
+
+        // Обработка события прогресса загрузки
+        xhr.upload.addEventListener('progress', function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                progressBar.value = percentComplete;
+            }
+        });
+
+        // Обработка завершения загрузки
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                statusDiv.innerHTML = "Файлы успешно загружены!";
+            } else {
+                statusDiv.innerHTML = "Ошибка при загрузке файлов.";
+            }
+            progressBar.style.display = 'none'; // Скрываем прогресс-бар
+        };
+
+        xhr.send(formData);
+    });
+</script>
+
+</body>
+</html>

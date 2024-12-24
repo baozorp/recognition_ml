@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Progress</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        th {
+            cursor: pointer;
+        }
+        /* Добавление стиля для контейнера с прокруткой */
+        .table-container {
+            max-height: 600px; /* Задайте максимальную высоту */
+            overflow-y: auto; /* Добавьте вертикальную прокрутку */
+            border: 1px solid #ddd; /* Граница вокруг контейнера */
+            margin-bottom: 20px; /* Отступ снизу */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-4 mb-4">Task Progress</h1>
+    <div class="table-container"> <!-- Контейнер для таблицы -->
+        <table class="table table-bordered" id="taskTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Task ID</th>
+                    <th onclick="sortTable(1)">Status</th>
+                    <th onclick="sortTable(2)">File Name</th>
+                    <th onclick="sortTable(3)">Progress</th>
+                    <th onclick="sortTable(4)">Start Time</th>
+                    <th onclick="sortTable(5)">End Time</th>
+                    <th onclick="sortTable(6)">Day</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for task in tasks %} <!-- Отображение только первых 5 задач -->
+                <tr>
+                    <td>{{ task['task_id'] }}</td>
+                    <td>{{ task['status'] }}</td>
+                    <td>{{ task['file_name'] }}</td>
+                    <td>
+                        <div class="progress">
+                            {% set progress = (task['current_frame'] / task['total_frames']) * 100 if task['total_frames'] > 0 else 0 %}
+                            <div class="progress-bar" role="progressbar" style="width: {{ progress }}%;" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">{{ progress|round(2) }}%</div>
+                        </div>
+                    </td>
+                    <td>{{ task['start_process_dttm'] }}</td>
+                    <td>{{ task['end_process_dttm'] }}</td>
+                    <td>{{ task['day'] }}</td>
+                    <td>
+                        {% if task['status'] == 'run' %}
+                        <button type="button" class="btn btn-danger" onclick="stopStream({{ task['task_id'] }})">Stop</button>
+                        {% elif task['status'] == 'done' %}
+                        <button type="button" class="btn btn-secondary" disabled>Stopped</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <form action="/" method="get" class="mt-2">
+        <input type="submit" value="Главная" class="form-control btn btn-success">
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+// Функция для остановки потока
+async function stopStream(taskId) {
+    const response = await fetch(`/stop_stream?task_id=${taskId}`, {
+        method: 'GET'
+    });
+
+    if (response.ok) {
+        // Если запрос успешный, перезагружаем страницу
+            setTimeout(function() {
+             window.location.reload();
+            }, 700);   // Перезагрузка страницы
+    } else {
+        alert('Ошибка при остановке потока: ' + response.statusText);
+    }
+}
+// Функция сортировки таблицы
+function sortTable(n) {
+    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    table = document.getElementById("taskTable");
+    switching = true;
+    dir = "asc";
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+            if (dir == "asc") {
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            } else if (dir == "desc") {
+                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            switchcount++;
+        } else {
+            if (switchcount == 0 && dir == "asc") {
+                dir = "desc";
+                switching = true;
+            }
+        }
+    }
+}
+
+// Функция для перезагрузки страницы после нажатия кнопки "Stop"
+function reloadPage() {
+    setTimeout(function() {
+        window.location.reload();
+    }, 700);  // Задержка 700 мс для отправки формы
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Video Feed</title>
+</head>
+<body>
+<h1>Video Feed</h1>
+<img src="/stream" id="video" style="width: 100%; max-width: 1300px;">
+<br>
+<button onclick="goBack()">Назад</button>
+
+<script>
+    function goBack() {
+        window.location.href = '/';  // Перенаправление на главную страницу
+    }
+
+    function stopVideo() {
+        fetch('/stop_stream');  // Отправляем запрос на остановку потока
+        document.getElementById('video').src = '';
+        alert('Видеопоток остановлен');
+    }
+</script>
+</body>
+</html>
