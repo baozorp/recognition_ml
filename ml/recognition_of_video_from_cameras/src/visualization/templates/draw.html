@@ -1,145 +1,153 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
-    <link href="https://assets.website-files.com/5f6bc60e665f54545a1e52a5/610d3e1407cf0329b8b8ade4_favicon-32x32.png" rel="shortcut icon" type="image/x-icon">
+    <link href="https://assets.website-files.com/5f6bc60e665f54545a1e52a5/610d3e1407cf0329b8b8ade4_favicon-32x32.png"
+        rel="shortcut icon" type="image/x-icon">
     <link rel="stylesheet" href="static/styles.css">
     <title>PolygonZone by Roboflow</title>
     <meta name="title" content="PolygonZone by Roboflow">
-    <meta name="description" content="Draw polygons on an image and retrieve the coordinates for use in your computer vision projects.">
+    <meta name="description"
+        content="Draw polygons on an image and retrieve the coordinates for use in your computer vision projects.">
     <meta property="og:type" content="website">
-    <meta property="og:description" content="Draw polygons on an image and retrieve the coordinates for use in your computer vision projects.">
+    <meta property="og:description"
+        content="Draw polygons on an image and retrieve the coordinates for use in your computer vision projects.">
     <script src="https://kit.fontawesome.com/1e5ca35699.js" crossorigin="anonymous"></script>
 </head>
+
 <body>
-<main>
-    <label for="status">{{ status }}</label>
-    <div class="flex">
-        <div class="left">
-            <h1>Draw points to create polygon coordinates</h1>
-            <div class="taskbar-container">
-                <div class="tc-container">
-                    <div class="taskbar">
-                        <div class="t-icon t-mode" id="mode-polygon">
-                            <i class="fa-solid fa-draw-polygon"></i>
-                            <span class="ti-caption">
-                                        <span>Polygon Mode</span>
-                                        <span>(P)</span>
-                                    </span>
+    <main>
+        <label for="status">{{ status }}</label>
+        <div class="flex">
+            <div class="left">
+                <h1>Draw points to create polygon coordinates</h1>
+                <div class="taskbar-container">
+                    <div class="tc-container">
+                        <div class="taskbar">
+                            <div class="t-icon t-mode" id="mode-polygon">
+                                <i class="fa-solid fa-draw-polygon"></i>
+                                <span class="ti-caption">
+                                    <span>Polygon Mode</span>
+                                    <span>(P)</span>
+                                </span>
+                            </div>
+                            <div class="t-icon t-mode" id="mode-line">
+                                <i class="fa-solid fa-arrows-left-right"></i>
+                                <span class="ti-caption">
+                                    <span>Line Mode</span>
+                                    <span>(L)</span>
+                                </span>
+                            </div>
+                            <div class="t-divider"></div>
+                            <div class="t-icon" id="undo">
+                                <i class="fa-solid fa-rotate-left"></i>
+                                <span class="ti-caption">
+                                    <span>Undo</span>
+                                    <span>(Ctrl/⌘-Z)</span>
+                                </span>
+                            </div>
+                            <div class="t-icon" id="discard-current">
+                                <i class="fa-solid fa-xmark"></i>
+                                <span class="ti-caption">
+                                    <span>Discard current</span>
+                                    <span>(Esc)</span>
+                                </span>
+                            </div>
+                            <div class="t-divider"></div>
+                            <div class="t-icon" id="clear">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span class="ti-caption">
+                                    <span>Clear all polygons</span>
+                                    <span>(Ctrl/⌘-E)</span>
+                                </span>
+                            </div>
+                            <div class="t-icon" id="save-image">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span class="ti-caption">
+                                    <span>Save image</span>
+                                    <span>(Ctrl/⌘-S)</span>
+                                </span>
+                            </div>
                         </div>
-                        <div class="t-icon t-mode" id="mode-line">
-                            <i class="fa-solid fa-arrows-left-right"></i>
-                            <span class="ti-caption">
-                                        <span>Line Mode</span>
-                                        <span>(L)</span>
-                                    </span>
-                        </div>
-                        <div class="t-divider"></div>
-                        <div class="t-icon" id="undo">
-                            <i class="fa-solid fa-rotate-left"></i>
-                            <span class="ti-caption">
-                                        <span>Undo</span>
-                                        <span>(Ctrl/⌘-Z)</span>
-                                    </span>
-                        </div>
-                        <div class="t-icon" id="discard-current">
-                            <i class="fa-solid fa-xmark"></i>
-                            <span class="ti-caption">
-                                        <span>Discard current</span>
-                                        <span>(Esc)</span>
-                                    </span>
-                        </div>
-                        <div class="t-divider"></div>
-                        <div class="t-icon" id="clear">
-                            <i class="fa-solid fa-trash-can"></i>
-                            <span class="ti-caption">
-                                        <span>Clear all polygons</span>
-                                        <span>(Ctrl/⌘-E)</span>
-                                    </span>
-                        </div>
-                        <div class="t-icon" id="save-image">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span class="ti-caption">
-                                        <span>Save image</span>
-                                        <span>(Ctrl/⌘-S)</span>
-                                    </span>
+                        <div class="coordinates">
+                            <span class="cc-title">Coordinates</span>
+                            <span>
+                                <span class="cc-coord">x: <span class="cc-value" id="x">---</span> | </span>
+                                <span class="cc-coord">y: <span class="cc-value" id="y">---</span></span>
+                            </span>
                         </div>
                     </div>
-                    <div class="coordinates">
-                        <span class="cc-title">Coordinates</span>
-                        <span>
-                                    <span class="cc-coord">x: <span class="cc-value" id="x">---</span> | </span>
-                                    <span class="cc-coord">y: <span class="cc-value" id="y">---</span></span>
-                                </span>
+                </div>
+                <canvas id="canvas"></canvas>
+            </div>
+
+            <!-- Поля ввода из settings.html -->
+            <div class="right">
+                <h2>Input Parameters</h2>
+                <form action="/save_settings" method="post">
+                    <table>
+                        <tr>
+                            <td><label for="model_path">Model Type:</label></td>
+                            <td>
+                                <select id="model_path" name="model_path" required>
+                                    <option value="/ml/recognition_of_video_from_cameras/src/models/yolov10l.pt">
+                                        yolov10l</option>
+                                    <option value="/ml/recognition_of_video_from_cameras/src/models/yolov8l.pt">yolov8l
+                                    </option>
+                                    <option value="/ml/recognition_of_video_from_cameras/src/models/yolov8n.pt">yolov8nl
+                                    </option>
+                                    <option value="/ml/recognition_of_video_from_cameras/src/models/yolov10x.pt">
+                                        yolov10x</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="target_video">Target Video:</label></td>
+                            <td>
+                                <input type="checkbox" id="target_video" name="target_video">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="show_video">Show video:</label></td>
+                            <td>
+                                <input type="checkbox" id="show_video" name="show_video">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="confidence">Confidence:</label></td>
+                            <td>
+                                <input type="number" id="confidence" name="confidence" step="0.01" value="0.2" required>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="iou">IoU:</label></td>
+                            <td>
+                                <input type="number" id="iou" name="iou" step="0.01" value="0.2" required>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+                <div class="right">
+                    <div class="how-to section">
+                        <ol class="ta-left">
+                        </ol>
+                    </div>
+                    <div class="points-output section">
+                        <h2>NumPy Points</h2>
+                        <p>Copy the points below into your Python code.</p>
+                        <a href="" id="clipboard" class="widgetButton">Сохранить</a>
+                        <textarea id="python"></textarea>
+                        <details>
+                        </details>
                     </div>
                 </div>
             </div>
-            <canvas id="canvas"></canvas>
-        </div>
-
-        <!-- Поля ввода из settings.html -->
-        <div class="right">
-            <h2>Input Parameters</h2>
-            <form action="/save_settings" method="post">
-                <table>
-                    <tr>
-                        <td><label for="model_path">Model Type:</label></td>
-                        <td>
-                            <select id="model_path" name="model_path" required>
-                                <option value="/workspace/recognition_of_video_from_cameras/src/models/yolov10l.pt">yolov10l</option>
-                                <option value="/workspace/recognition_of_video_from_cameras/src/models/yolov8l.pt">yolov8l</option>
-                                <option value="/workspace/recognition_of_video_from_cameras/src/models/yolov8n.pt">yolov8nl</option>
-                                <option value="/workspace/recognition_of_video_from_cameras/src/models/yolov10x.pt">yolov10x</option>
-                            </select>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label for="target_video">Target Video:</label></td>
-                        <td>
-                            <input type="checkbox" id="target_video" name="target_video">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label for="show_video">Show video:</label></td>
-                        <td>
-                            <input type="checkbox" id="show_video" name="show_video">
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label for="confidence">Confidence:</label></td>
-                        <td>
-                            <input type="number" id="confidence" name="confidence" step="0.01" value="0.2" required>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><label for="iou">IoU:</label></td>
-                        <td>
-                            <input type="number" id="iou" name="iou" step="0.01" value="0.2" required>
-                        </td>
-                    </tr>
-                </table>
-            </form>
-        <div class="right">
-            <div class="how-to section">
-                <ol class="ta-left">
-                </ol>
-            </div>
-            <div class="points-output section">
-                <h2>NumPy Points</h2>
-                <p>Copy the points below into your Python code.</p>
-                <a href="" id="clipboard" class="widgetButton">Сохранить</a>
-                <textarea id="python"></textarea>
-                <details>
-                </details>
-            </div>
-        </div>
-    </div>
-</main>
-{#
-<script type="module" src="/static/readfile.js"></script>
-#}
-<script type="module" src="static/script.js"></script>
+    </main>
+    {#
+    <script type="module" src="/static/readfile.js"></script>
+    #}
+    <script type="module" src="static/script.js"></script>
 </body>
+
 </html>
-
-

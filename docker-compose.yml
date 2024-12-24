@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: nthvbyfnjh09
+      POSTGRES_DB: gpdb
+    networks:
+      - app
+    ports:
+      - 5432:5432
+    volumes:
+      - ./init_db.sql:/docker-entrypoint-initdb.d/create_database.sql
+
+  ml:
+    container_name: ml
+    build: ./ml
+    networks:
+      - app
+    ports:
+      - 8000:8000
+
+networks:
+  app:
+    driver: bridge

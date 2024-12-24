@@ -1,5 +1,5 @@
 class SQLConfig:
-    SQL_HOSTNAME = ''
+    SQL_HOSTNAME = 'postgres'
     SQL_USERNAME = 'postgres'
     SQL_PASSWORD = 'nthvbyfnjh09'
     SQL_MAIN_DATABASE = 'gpdb'
